@@ -90,17 +90,7 @@ class DonutShopMain extends StatelessWidget {
             height: 350,
             child: DonutPager()
           ),
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Text('Classic'),
-                Text('Sprinkled', style: TextStyle(color: Utils.mainColor, fontWeight: FontWeight.bold)),
-                Text('Stuffed')
-              ],
-            )
-          ),
+          DonutFilterBar(),
           Expanded(
             child: Container(
               child: ListView.builder(
@@ -124,6 +114,89 @@ class DonutShopMain extends StatelessWidget {
                 IconButton(onPressed: () {}, icon: Icon(Icons.shopping_cart, color: Utils.mainColor)) ,
               ],
             )
+          )
+        ]
+      )
+    );
+  }
+}
+
+class DonutFilterBar extends StatefulWidget {
+    
+  @override
+  DonutFilterBarState createState() => DonutFilterBarState();
+}
+
+class DonutFilterBarState extends State<DonutFilterBar> {
+  
+  String selectedTab = 'classic';
+  
+  Alignment alignmentBasedOnTap() {
+    Alignment returnedAlignment = Alignment.centerLeft;
+    
+    switch(selectedTab) {
+      case 'classic':
+        returnedAlignment =  Alignment.centerLeft;
+        break;
+      case 'sprinkled':
+        returnedAlignment =  Alignment.center;
+        break;
+      case 'stuffed':
+        returnedAlignment =  Alignment.centerRight;
+        break;
+      default:
+        returnedAlignment =  Alignment.centerLeft;
+        break;
+    }
+    
+    return returnedAlignment;
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              GestureDetector(
+                onTap: () { setState(() { selectedTab = 'classic'; }); },
+                child: Container(
+                  child: Text('Classic', style: TextStyle(color: selectedTab == 'classic' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
+                )
+              ),
+              GestureDetector(
+                onTap: () { setState(() { selectedTab = 'sprinkled'; }); },
+                child: Container(
+                  child: Text('Sprinkled', style: TextStyle(color: selectedTab == 'sprinkled' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
+                )
+              ),
+              GestureDetector(
+                onTap: () { setState(() { selectedTab = 'stuffed'; }); },
+                child: Container(
+                  child: Text('Stuffed', style: TextStyle(color: selectedTab == 'stuffed' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
+                )
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Stack(
+            children: [
+              AnimatedAlign(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                alignment: alignmentBasedOnTap(),
+                child: Container(
+                  decoration: BoxDecoration(color: Utils.mainColor,borderRadius: BorderRadius.circular(20)),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width / 3 - 20,
+                    height: 5
+                  )
+                )
+              )
+            ]
           )
         ]
       )
