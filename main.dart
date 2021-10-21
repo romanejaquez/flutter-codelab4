@@ -20,25 +20,36 @@ class Utils {
       imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic1.png',
       name: 'Strawberry Sprinkled Glazed',
       description: 'Lorem ipsum something',
+      price: 1.99,
       isSelected: false
     ),
     DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic1.png',
-      name: 'Strawberry Sprinkled Glazed',
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic2.png',
+      name: 'Chocolate Glazed Doughnut',
       description: 'Lorem ipsum something',
-      isSelected: false
+      isSelected: false,
+      price: 2.99
     ),
     DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic1.png',
-      name: 'Strawberry Sprinkled Glazed',
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic3.png',
+      name: 'Chocolate Dipped Doughnut',
       description: 'Lorem ipsum something',
-      isSelected: false
+      isSelected: false,
+      price: 2.99
     ),
     DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic1.png',
-      name: 'Strawberry Sprinkled Glazed',
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic4.png',
+      name: 'Cinamon Glazed Glazed',
       description: 'Lorem ipsum something',
-      isSelected: false
+      isSelected: false,
+      price: 2.99
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic5.png',
+      name: 'Sugar Glazed Doughnut',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 1.99
     )
   ];
 }
@@ -85,7 +96,7 @@ class DonutShopMain extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text('Classic'),
-                Text('Sprinkled', style: TextStyle(color: Utils.mainColor)),
+                Text('Sprinkled', style: TextStyle(color: Utils.mainColor, fontWeight: FontWeight.bold)),
                 Text('Stuffed')
               ],
             )
@@ -98,33 +109,7 @@ class DonutShopMain extends StatelessWidget {
                 itemBuilder: (context, index) {
                   var donut = Utils.donuts[index];
 
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      Container(
-                        width: 150,
-                        padding: EdgeInsets.all(20),
-                        alignment: Alignment.bottomLeft,
-                        margin: EdgeInsets.only(left: 10, top: 60, right: 10, bottom: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0.0, 4.0))]
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('${donut.name!}')
-                          ],
-                        ),
-                      ),
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: Image.network(donut.imgUrl!, width: 150, height: 150, fit: BoxFit.contain),
-                      )
-                    ],
-                  );
+                  return DonutCard(donutInfo: donut);
                 },
               )
             ),
@@ -146,6 +131,62 @@ class DonutShopMain extends StatelessWidget {
   }
 }
 
+class DonutCard extends StatelessWidget {
+
+  DonutModel? donutInfo;
+  DonutCard({ this.donutInfo });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => DonutShopDetails(selectedDonut: donutInfo))
+        );
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: 150,
+            padding: EdgeInsets.all(20),
+            alignment: Alignment.bottomLeft,
+            margin: EdgeInsets.only(left: 10, top: 60, right: 10, bottom: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0.0, 4.0))]
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${donutInfo!.name!}', style: TextStyle(color: Utils.mainDark, fontWeight: FontWeight.bold, fontSize: 18)),
+                SizedBox(height: 10),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Utils.mainColor,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+                  child: Text('\$${donutInfo!.price!.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold))
+                )
+              ],
+            ),
+          ),
+          Hero(
+            tag: donutInfo!.name!,
+            child: Align(
+            alignment: Alignment.topCenter,
+            child: Image.network(donutInfo!.imgUrl!, width: 170, height: 170, fit: BoxFit.contain),
+          ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
 class DonutPager extends StatefulWidget {
   
   @override
@@ -154,9 +195,9 @@ class DonutPager extends StatefulWidget {
 
 class _DonutPagerState extends State<DonutPager> {
   List<DonutPage> pages = [
-    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo1.png', label: 'Test label'),
-    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo2.png', label: 'Test label'),
-    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo3.png', label: 'Test label'),
+    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo1.png', label: 'Test label', logoImgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text_reversed.png'),
+    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo2.png', label: 'Test label', logoImgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text_reversed.png'),
+    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo3.png', label: 'Test label', logoImgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text.png'),
   ];
   int currentPage = 0;
   final PageController controller = PageController(initialPage: 0);
@@ -197,7 +238,7 @@ class _DonutPagerState extends State<DonutPager> {
                   fit: BoxFit.cover
                 )
               ),
-              child: Text('${currentPage.label!}', style: TextStyle(color: Colors.white))
+              child: Image.network(currentPage.logoImgUrl!, width: 120) // Text('${currentPage.label!}', style: TextStyle(color: Colors.white))
             );
           })
         )
@@ -230,12 +271,33 @@ class _DonutPagerState extends State<DonutPager> {
 class DonutPage {
   String? imgUrl;
   String? label;
+  String? logoImgUrl;
   
-  DonutPage({ this.imgUrl, this.label });
+  DonutPage({ this.imgUrl, this.logoImgUrl, this.label });
 }
 
-class DonutShopDetails extends StatelessWidget {
-  
+class DonutShopDetails extends StatefulWidget {
+
+  DonutModel? selectedDonut;
+
+  DonutShopDetails({ this.selectedDonut });
+
+  @override
+  State<DonutShopDetails> createState() => _DonutShopDetailsState();
+}
+
+class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerProviderStateMixin {
+  AnimationController? controller;
+  Animation<double>? rotationAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(duration: const Duration(seconds: 20), vsync: this)..repeat();
+    rotationAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: controller!, curve: Curves.linear));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -248,7 +310,6 @@ class DonutShopDetails extends StatelessWidget {
           child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text.png')
         )
       ),
-      drawer: const Drawer(),
       body: Column(
         children: [
           Container(
@@ -256,12 +317,23 @@ class DonutShopDetails extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned(
-                  top: 50,
-                  right: -50,
-                  child: Transform.scale(
-                    scale: 1.8,
-                    child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic1.png')
-                  )
+                  top: -40,
+                  right: -120,
+                  child: Hero(
+                      tag: widget.selectedDonut!.name!,
+                      child: RotationTransition(
+                        turns: rotationAnimation!,
+                        child: Container(
+                          width: 500,
+                          height: 500,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage(widget.selectedDonut!.imgUrl!),fit: BoxFit.contain
+                            )
+                          ),
+                        ),
+                      )
+                    )
                 )
               ]
             )
@@ -276,8 +348,8 @@ class DonutShopDetails extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text('Strawberry Glazed Sprinkle',
-                                    style: TextStyle(color: Utils.mainDark, fontSize: 40, fontWeight: FontWeight.bold)    
+                        child: Text('${widget.selectedDonut!.name!}',
+                                    style: TextStyle(color: Utils.mainDark, fontSize: 30, fontWeight: FontWeight.bold)    
                                    )
                       ),
                       SizedBox(width: 50),
@@ -287,14 +359,31 @@ class DonutShopDetails extends StatelessWidget {
                   SizedBox(height: 10),
                   Container(
                     padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-                    child: Text('\$1.99', style: TextStyle(color: Colors.white)),
+                    child: Text('\$${widget.selectedDonut!.price!.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
                     decoration: BoxDecoration(
                       color: Utils.mainDark,
                       borderRadius: BorderRadius.circular(20),
                     )
                   ),
                   SizedBox(height: 20),
-                  Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce blandit, tellus condimentum cursus gravida, lorem augue venenatis elit, sit amet bibendum quam neque id sapien. ')
+                  Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce blandit, tellus condimentum cursus gravida, lorem augue venenatis elit, sit amet bibendum quam neque id sapien. '),
+                  Container(
+                    margin: EdgeInsets.only(top: 20),
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                    decoration: BoxDecoration(
+                      color: Utils.mainDark.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(50)
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.shopping_cart, color: Utils.mainDark),
+                        SizedBox(width: 20),
+                        Text('Add To Cart', style: TextStyle(color: Utils.mainDark)),
+                      ],
+                    )
+                  )
                 ]
               )
             )
@@ -302,6 +391,12 @@ class DonutShopDetails extends StatelessWidget {
         ]
       )
     );
+  }
+
+  @override
+  void dispose() {
+    controller!.dispose();
+    super.dispose();
   }
 }
 
