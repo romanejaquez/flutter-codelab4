@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 
 const Color darkBlue = Color.fromARGB(255, 18, 32, 47);
 
@@ -232,19 +234,28 @@ class DonutBottomBar extends StatelessWidget {
         children: [
           IconButton(onPressed: () {}, icon: Icon(Icons.trip_origin, color: Utils.mainDark)) ,
           IconButton(onPressed: () {}, icon: Icon(Icons.favorite, color: Utils.mainColor)) ,
-          Column(
-            children: [
-              Consumer<DonutCartService>(
-                builder: (context, cartService, child) {
-                  if (cartService.cartDonuts.length > 0) {
-                    return Text('${cartService.cartDonuts.length}', style: TextStyle(color: Utils.mainColor, fontWeight: FontWeight.bold, fontSize: 12));
-                  }
-
-                  return SizedBox(height: 20);
-                },
-              ),
-              IconButton(onPressed: () {}, icon: Icon(Icons.shopping_cart, color: Utils.mainColor)) ,
-            ],
+          Container(
+            constraints: BoxConstraints(minHeight: 70),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Utils.mainColor,
+              borderRadius: BorderRadius.circular(50)
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Consumer<DonutCartService>(
+                  builder: (context, cartService, child) {
+                    if (cartService.cartDonuts.length > 0) {
+                      return Text('${cartService.cartDonuts.length}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14));
+                    }
+                    return SizedBox(height: 20);
+                  },
+                ),
+                SizedBox(height: 10),
+                Icon(Icons.shopping_cart, color: Colors.white) ,
+              ],
+            ),
           )
         ],
       )
@@ -429,59 +440,79 @@ class _DonutPagerState extends State<DonutPager> {
     
     return Column(
       children: [
+
         Expanded(
-        child: PageView(
-          /// [PageView.scrollDirection] defaults to [Axis.horizontal].
-          /// Use [Axis.vertical] to scroll vertically.
-          scrollDirection: Axis.horizontal,
-          pageSnapping: true,
-          controller: controller,
-          onPageChanged: (int page) {
-            setState(() {
-              currentPage = page;
-            });
-          },
-          children: List.generate(3, (index) {
-            DonutPage currentPage = pages[index];
-            return Container(
-              alignment: Alignment.bottomLeft,
-              margin: EdgeInsets.all(20),
-              padding: EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0.0, 5.0))],
-                image: DecorationImage(
-                  image: NetworkImage(currentPage.imgUrl!),
-                  fit: BoxFit.cover
-                )
-              ),
-              child: Image.network(currentPage.logoImgUrl!, width: 120) // Text('${currentPage.label!}', style: TextStyle(color: Colors.white))
-            );
-          })
-        )
-      ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(pages.length, (index) {
-            return GestureDetector(
-              onTap: () {
-                controller.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-              },
-              child: Container(
-                width: 10,
-                height: 10,
-                
-                margin: EdgeInsets.all(10),
+          child: PageView(
+            scrollDirection: Axis.horizontal,
+            pageSnapping: true,
+            controller: controller,
+            onPageChanged: (int page) {
+              setState(() {
+                currentPage = page;
+              });
+            },
+            children: List.generate(3, (index) {
+              DonutPage currentPage = pages[index];
+              return Container(
+                alignment: Alignment.bottomLeft,
+                margin: EdgeInsets.all(20),
+                padding: EdgeInsets.all(30),
                 decoration: BoxDecoration(
-                  color: currentPage == index ? Utils.mainColor : Colors.grey.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(5)
-                )
-              ),
-            );
-          })
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0.0, 5.0))],
+                  image: DecorationImage(
+                    image: NetworkImage(currentPage.imgUrl!),
+                    fit: BoxFit.cover
+                  )
+                ),
+                child: Image.network(currentPage.logoImgUrl!, width: 120) // Text('${currentPage.label!}', style: TextStyle(color: Colors.white))
+              );
+            })
+          )
+        ),
+
+        // pageview indicators
+        PageViewerIndicator(
+          controller: controller, 
+          numberOfPages: pages.length,
+          currentPage: currentPage,
         )
       ]
     );
+  }
+}
+
+class PageViewerIndicator extends StatelessWidget {
+  PageController? controller;
+  int? numberOfPages;
+  int? currentPage;
+
+  PageViewerIndicator({ this.controller, this.numberOfPages, this.currentPage });
+
+  @override
+  Widget build(BuildContext context) {
+
+    
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: List.generate(numberOfPages!, (index) {
+          return GestureDetector(
+            onTap: () {
+              controller!.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeInOut,
+              width: 15, height: 15,
+              margin: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: currentPage == index ? Utils.mainColor : Colors.grey.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10)
+              )
+            ),
+          );
+        })
+      );
   }
 }
       
