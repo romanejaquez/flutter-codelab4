@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 const Color darkBlue = Color.fromARGB(255, 18, 32, 47);
 
 void main() {
   runApp(
-    MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: DonutShopMain()
-    ));
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => DonutService(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DonutCartService(),
+        )
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: DonutShopMain()
+      )
+    )
+  );
 }
 
 class Utils {
@@ -21,35 +33,120 @@ class Utils {
       name: 'Strawberry Sprinkled Glazed',
       description: 'Lorem ipsum something',
       price: 1.99,
-      isSelected: false
+      isSelected: false,
+      type: 'classic'
     ),
     DonutModel(
       imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic2.png',
       name: 'Chocolate Glazed Doughnut',
       description: 'Lorem ipsum something',
       isSelected: false,
-      price: 2.99
+      price: 2.99,
+      type: 'classic',
     ),
     DonutModel(
       imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic3.png',
       name: 'Chocolate Dipped Doughnut',
       description: 'Lorem ipsum something',
       isSelected: false,
-      price: 2.99
+      price: 2.99,
+      type: 'classic'
     ),
     DonutModel(
       imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic4.png',
       name: 'Cinamon Glazed Glazed',
       description: 'Lorem ipsum something',
       isSelected: false,
-      price: 2.99
+      price: 2.99,
+      type: 'classic'
     ),
     DonutModel(
       imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic5.png',
       name: 'Sugar Glazed Doughnut',
       description: 'Lorem ipsum something',
       isSelected: false,
-      price: 1.99
+      price: 1.99,
+      type: 'classic'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled1.png',
+      name: 'Halloween Chocolate Glazed',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 2.99,
+      type: 'sprinkled'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled2.png',
+      name: 'Party Sprinkled Cream',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 1.99,
+      type: 'sprinkled'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled3.png',
+      name: 'Chocolate Glazed Sprinkled',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 1.99,
+      type: 'sprinkled'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled4.png',
+      name: 'Strawbery Glazed Sprinkled',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 2.99,
+      type: 'sprinkled'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled5.png',
+      name: 'Reese\'s Sprinkled',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 3.99,
+      type: 'sprinkled'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed1.png',
+      name: 'Brownie Cream Doughnut',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 1.99,
+      type: 'stuffed'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed2.png',
+      name: 'Jelly Stuffed Doughnut',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 2.99,
+      type: 'stuffed'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed3.png',
+      name: 'Caramel Stuffed Doughnut',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 2.59,
+      type: 'stuffed'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed4.png',
+      name: 'Maple Stuffed Doughnut',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 1.99,
+      type: 'stuffed'
+    ),
+    DonutModel(
+      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed5.png',
+      name: 'Glazed Jelly Stuffed Doughnut',
+      description: 'Lorem ipsum something',
+      isSelected: false,
+      price: 1.59,
+      type: 'stuffed'
     )
   ];
 }
@@ -83,7 +180,16 @@ class DonutShopMain extends StatelessWidget {
           child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text.png')
         )
       ),
-      drawer: const Drawer(),
+      drawer: Drawer(
+        child: Container(
+          color: Utils.mainDark,
+          padding: EdgeInsets.all(40),
+          alignment: Alignment.bottomLeft,
+          child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text_reversed.png',
+            width: 200
+          )
+        )
+      ),
       body: Column(
         children: [
           Container(
@@ -93,29 +199,54 @@ class DonutShopMain extends StatelessWidget {
           DonutFilterBar(),
           Expanded(
             child: Container(
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: Utils.donuts.length,
-                itemBuilder: (context, index) {
-                  var donut = Utils.donuts[index];
+              child: Consumer<DonutService>(
+                builder: (context, donutService, child) {
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: donutService.filteredDonuts.length,
+                    itemBuilder: (context, index) {
+                      var donut = donutService.filteredDonuts[index];
 
-                  return DonutCard(donutInfo: donut);
+                      return DonutCard(donutInfo: donut);
+                    },
+                  );
                 },
               )
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(30),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(onPressed: () {}, icon: Icon(Icons.trip_origin, color: Utils.mainDark)) ,
-                IconButton(onPressed: () {}, icon: Icon(Icons.favorite, color: Utils.mainColor)) ,
-                IconButton(onPressed: () {}, icon: Icon(Icons.shopping_cart, color: Utils.mainColor)) ,
-              ],
-            )
-          )
+          DonutBottomBar()
         ]
+      )
+    );
+  }
+}
+
+class DonutBottomBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(30),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.trip_origin, color: Utils.mainDark)) ,
+          IconButton(onPressed: () {}, icon: Icon(Icons.favorite, color: Utils.mainColor)) ,
+          Column(
+            children: [
+              Consumer<DonutCartService>(
+                builder: (context, cartService, child) {
+                  if (cartService.cartDonuts.length > 0) {
+                    return Text('${cartService.cartDonuts.length}', style: TextStyle(color: Utils.mainColor, fontWeight: FontWeight.bold, fontSize: 12));
+                  }
+
+                  return SizedBox(height: 20);
+                },
+              ),
+              IconButton(onPressed: () {}, icon: Icon(Icons.shopping_cart, color: Utils.mainColor)) ,
+            ],
+          )
+        ],
       )
     );
   }
@@ -154,6 +285,8 @@ class DonutFilterBarState extends State<DonutFilterBar> {
   
   @override
   Widget build(BuildContext context) {
+    DonutService donutService = Provider.of<DonutService>(context, listen: false);
+
     return Padding(
       padding: EdgeInsets.all(20),
       child: Column(
@@ -162,19 +295,30 @@ class DonutFilterBarState extends State<DonutFilterBar> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               GestureDetector(
-                onTap: () { setState(() { selectedTab = 'classic'; }); },
+                onTap: () { 
+                  setState(() { 
+                    selectedTab = 'classic'; 
+                  });
+                  donutService.filteredDonutsByType(selectedTab);
+                },
                 child: Container(
                   child: Text('Classic', style: TextStyle(color: selectedTab == 'classic' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
                 )
               ),
               GestureDetector(
-                onTap: () { setState(() { selectedTab = 'sprinkled'; }); },
+                onTap: () { 
+                  setState(() { selectedTab = 'sprinkled'; });
+                  donutService.filteredDonutsByType(selectedTab);
+               },
                 child: Container(
                   child: Text('Sprinkled', style: TextStyle(color: selectedTab == 'sprinkled' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
                 )
               ),
               GestureDetector(
-                onTap: () { setState(() { selectedTab = 'stuffed'; }); },
+                onTap: () { 
+                  setState(() { selectedTab = 'stuffed'; }); 
+                  donutService.filteredDonutsByType(selectedTab);
+                },
                 child: Container(
                   child: Text('Stuffed', style: TextStyle(color: selectedTab == 'stuffed' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
                 )
@@ -251,7 +395,7 @@ class DonutCard extends StatelessWidget {
             tag: donutInfo!.name!,
             child: Align(
             alignment: Alignment.topCenter,
-            child: Image.network(donutInfo!.imgUrl!, width: 170, height: 170, fit: BoxFit.contain),
+            child: Image.network(donutInfo!.imgUrl!, width: 150, height: 150, fit: BoxFit.contain),
           ),
           )
         ],
@@ -440,22 +584,46 @@ class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerPr
                   ),
                   SizedBox(height: 20),
                   Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce blandit, tellus condimentum cursus gravida, lorem augue venenatis elit, sit amet bibendum quam neque id sapien. '),
-                  Container(
-                    margin: EdgeInsets.only(top: 20),
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                    decoration: BoxDecoration(
-                      color: Utils.mainDark.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(50)
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.shopping_cart, color: Utils.mainDark),
-                        SizedBox(width: 20),
-                        Text('Add To Cart', style: TextStyle(color: Utils.mainDark)),
-                      ],
-                    )
+                  Consumer<DonutCartService>(
+                    builder: (context, cartService, child) {
+
+                      if (!cartService.isDonutInCart(widget.selectedDonut!)) {
+                        return GestureDetector(
+                          onTap: () {
+                            cartService.addToCart(widget.selectedDonut!);
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(top: 20),
+                            alignment: Alignment.center,
+                            padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
+                            decoration: BoxDecoration(
+                              color: Utils.mainDark.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(50)
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.shopping_cart, color: Utils.mainDark),
+                                SizedBox(width: 20),
+                                Text('Add To Cart', style: TextStyle(color: Utils.mainDark)),
+                              ],
+                            )
+                          ),
+                        );
+                      }
+
+                      return Padding(
+                        padding: EdgeInsets.only(top: 30, bottom: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.check_rounded, color: Utils.mainDark),
+                            SizedBox(width: 20),
+                            Text('Added to Cart', style: TextStyle(fontWeight: FontWeight.bold, color: Utils.mainDark))
+                          ],
+                        ),
+                      );
+                    },
                   )
                 ]
               )
@@ -480,12 +648,47 @@ class DonutModel {
   String? description;
   double? price;
   bool? isSelected;
+  String? type;
 
   DonutModel({
     this.imgUrl,
     this.name,
     this.description,
     this.price,
-    this.isSelected
+    this.isSelected,
+    this.type
   });
+}
+
+class DonutService extends ChangeNotifier {
+
+  List<DonutModel> filteredDonuts = [];
+
+  DonutService() {
+    filteredDonutsByType('classic');
+  }
+
+  void filteredDonutsByType(String type) {
+    filteredDonuts = Utils.donuts.where((d) => d.type == type).toList();
+    notifyListeners();
+  }
+}
+
+class DonutCartService extends ChangeNotifier {
+
+  List<DonutModel> cartDonuts = [];
+
+  void addToCart(DonutModel donut) {
+    cartDonuts.add(donut);
+    notifyListeners();
+  }
+
+  void removeFromCart(DonutModel donut) {
+    cartDonuts.remove(donut);
+    notifyListeners();
+  }
+
+  bool isDonutInCart(DonutModel donut) {
+    return cartDonuts.any((d) => d.name == donut.name);
+  }
 }
