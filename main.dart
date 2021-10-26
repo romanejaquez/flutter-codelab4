@@ -1,725 +1,359 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
-import 'dart:math' as math;
 
 const Color darkBlue = Color.fromARGB(255, 18, 32, 47);
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => DonutService(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => DonutCartService(),
-        )
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: DonutShopMain()
-      )
-    )
+ runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+ @override
+ Widget build(BuildContext context) {
+  return MaterialApp(
+   theme: ThemeData.dark().copyWith(
+    scaffoldBackgroundColor: darkBlue,
+   ),
+   debugShowCheckedModeBanner: false,
+   home: Scaffold(
+    body: Container(
+     child: MyWidget(),
+    ),
+   ),
   );
+ }
 }
 
-class Utils {
-  
-  static const Color mainColor = Color(0xFFFF0F7E);
-  static const Color mainDark = Color(0xFF980346);
-
-  static List<DonutModel> donuts = [
-   DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic1.png',
-      name: 'Strawberry Sprinkled Glazed',
-      description: 'Lorem ipsum something',
-      price: 1.99,
-      isSelected: false,
-      type: 'classic'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic2.png',
-      name: 'Chocolate Glazed Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 2.99,
-      type: 'classic',
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic3.png',
-      name: 'Chocolate Dipped Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 2.99,
-      type: 'classic'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic4.png',
-      name: 'Cinamon Glazed Glazed',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 2.99,
-      type: 'classic'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutclassic/donut_classic5.png',
-      name: 'Sugar Glazed Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 1.99,
-      type: 'classic'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled1.png',
-      name: 'Halloween Chocolate Glazed',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 2.99,
-      type: 'sprinkled'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled2.png',
-      name: 'Party Sprinkled Cream',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 1.99,
-      type: 'sprinkled'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled3.png',
-      name: 'Chocolate Glazed Sprinkled',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 1.99,
-      type: 'sprinkled'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled4.png',
-      name: 'Strawbery Glazed Sprinkled',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 2.99,
-      type: 'sprinkled'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutsprinkled/donut_sprinkled5.png',
-      name: 'Reese\'s Sprinkled',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 3.99,
-      type: 'sprinkled'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed1.png',
-      name: 'Brownie Cream Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 1.99,
-      type: 'stuffed'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed2.png',
-      name: 'Jelly Stuffed Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 2.99,
-      type: 'stuffed'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed3.png',
-      name: 'Caramel Stuffed Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 2.59,
-      type: 'stuffed'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed4.png',
-      name: 'Maple Stuffed Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 1.99,
-      type: 'stuffed'
-    ),
-    DonutModel(
-      imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donutstuffed/donut_stuffed5.png',
-      name: 'Glazed Jelly Stuffed Doughnut',
-      description: 'Lorem ipsum something',
-      isSelected: false,
-      price: 1.59,
-      type: 'stuffed'
-    )
-  ];
-}
-
-class DonutShopApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Utils.mainColor,
-      body: Center(
-        child: SizedBox(
-          width: 140,
-          child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_logowhite.png')
-        )
-      )
-    );
-  }
-}
-
-class DonutShopMain extends StatelessWidget {
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Utils.mainDark),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: SizedBox(
-          width: 120,
-          child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text.png')
-        )
-      ),
-      drawer: Drawer(
-        child: Container(
-          color: Utils.mainDark,
-          padding: EdgeInsets.all(40),
-          alignment: Alignment.bottomLeft,
-          child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text_reversed.png',
-            width: 200
-          )
-        )
-      ),
-      body: Column(
-        children: [
-          Container(
-            height: 350,
-            child: DonutPager()
-          ),
-          DonutFilterBar(),
-          Expanded(
-            child: Container(
-              child: Consumer<DonutService>(
-                builder: (context, donutService, child) {
-                  return ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: donutService.filteredDonuts.length,
-                    itemBuilder: (context, index) {
-                      var donut = donutService.filteredDonuts[index];
-
-                      return DonutCard(donutInfo: donut);
-                    },
-                  );
-                },
-              )
-            ),
-          ),
-          DonutBottomBar()
-        ]
-      )
-    );
-  }
-}
-
-class DonutBottomBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(30),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.trip_origin, color: Utils.mainDark)) ,
-          IconButton(onPressed: () {}, icon: Icon(Icons.favorite, color: Utils.mainColor)) ,
-          Container(
-            constraints: BoxConstraints(minHeight: 70),
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Utils.mainColor,
-              borderRadius: BorderRadius.circular(50)
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Consumer<DonutCartService>(
-                  builder: (context, cartService, child) {
-                    if (cartService.cartDonuts.length > 0) {
-                      return Text('${cartService.cartDonuts.length}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14));
-                    }
-                    return SizedBox(height: 20);
-                  },
+class MyWidget extends StatelessWidget {
+ @override
+ Widget build(BuildContext context) {
+  var dominos = Utils.takeRandom7Dominos();
+  return Container(
+   child: Stack(
+      children: [
+        Transform.scale(
+          scale: 0.8,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              DominoPiece(topNumber: 1, bottomNumber: 6),
+              DominoPiece(topNumber: 2, bottomNumber: 5),
+              Draggable(
+                child: DominoPiece(topNumber: 3, bottomNumber: 4),
+                feedback: Transform.scale(
+                  scale: 0.8,
+                  child: Transform.translate(
+                  offset: Offset(
+                    (MediaQuery.of(context).size.width / 2 - 10), 0.0),
+                  child: DominoPiece(topNumber: 3, bottomNumber: 4),
+                )
                 ),
-                SizedBox(height: 10),
-                Icon(Icons.shopping_cart, color: Colors.white) ,
-              ],
-            ),
-          )
-        ],
-      )
-    );
-  }
-}
-
-class DonutFilterBar extends StatefulWidget {
-    
-  @override
-  DonutFilterBarState createState() => DonutFilterBarState();
-}
-
-class DonutFilterBarState extends State<DonutFilterBar> {
-  
-  String selectedTab = 'classic';
-  
-  Alignment alignmentBasedOnTap() {
-    Alignment returnedAlignment = Alignment.centerLeft;
-    
-    switch(selectedTab) {
-      case 'classic':
-        returnedAlignment =  Alignment.centerLeft;
-        break;
-      case 'sprinkled':
-        returnedAlignment =  Alignment.center;
-        break;
-      case 'stuffed':
-        returnedAlignment =  Alignment.centerRight;
-        break;
-      default:
-        returnedAlignment =  Alignment.centerLeft;
-        break;
-    }
-    
-    return returnedAlignment;
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    DonutService donutService = Provider.of<DonutService>(context, listen: false);
-
-    return Padding(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              GestureDetector(
-                onTap: () { 
-                  setState(() { 
-                    selectedTab = 'classic'; 
-                  });
-                  donutService.filteredDonutsByType(selectedTab);
-                },
-                child: Container(
-                  child: Text('Classic', style: TextStyle(color: selectedTab == 'classic' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
-                )
-              ),
-              GestureDetector(
-                onTap: () { 
-                  setState(() { selectedTab = 'sprinkled'; });
-                  donutService.filteredDonutsByType(selectedTab);
-               },
-                child: Container(
-                  child: Text('Sprinkled', style: TextStyle(color: selectedTab == 'sprinkled' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
-                )
-              ),
-              GestureDetector(
-                onTap: () { 
-                  setState(() { selectedTab = 'stuffed'; }); 
-                  donutService.filteredDonutsByType(selectedTab);
-                },
-                child: Container(
-                  child: Text('Stuffed', style: TextStyle(color: selectedTab == 'stuffed' ? Utils.mainColor : Colors.black, fontWeight: FontWeight.bold))
-                )
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Stack(
-            children: [
-              AnimatedAlign(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeInOut,
-                alignment: alignmentBasedOnTap(),
-                child: Container(
-                  decoration: BoxDecoration(color: Utils.mainColor,borderRadius: BorderRadius.circular(20)),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width / 3 - 20,
-                    height: 5
-                  )
-                )
               )
             ]
           )
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: UserBadge(opponent: false)
+        ),
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: UserBadge(opponent: true)
+        ),
+        Positioned(
+          bottom: 0, left: 0, right: 0,
+          child: Container(
+            height: 300,
+            child: ListView.builder(
+              padding: EdgeInsets.only(left: 40),
+              scrollDirection: Axis.horizontal,
+              itemCount: dominos.length,
+              itemBuilder: (context, index) {
+                var currentDomino = dominos[index];
+                return Container(
+                  margin: EdgeInsets.only(right: 10),
+                  child: DominoPiece(
+                    topNumber: currentDomino.topNumber, 
+                    bottomNumber: currentDomino.bottomNumber
+                  )
+                );
+              },
+            )
+          )
+        )
+      ] 
+   ),
+   decoration: BoxDecoration(
+    gradient: RadialGradient(
+     colors: [Color(0xFF007B17), Color(0xFF004D0F)]
+    )
+   )
+  );
+ }
+}
+
+class UserBadge extends StatelessWidget {
+  
+  bool? opponent;
+  
+  UserBadge({ this.opponent });
+  
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(top: 20),
+      height: 150,
+      padding: EdgeInsets.only(left: 20, right: 20, bottom: 40),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              margin: EdgeInsets.only(top: 50),
+              padding: EdgeInsets.only(top: 30, left: 15, bottom: 12, right: 15),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const Text('3 Pieces Remaining', style: TextStyle(color: Colors.white, fontSize: 10))
+            )
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              padding: EdgeInsets.only(left: 5, top: 5, bottom: 5, right: 60),
+              decoration: BoxDecoration(
+                color: opponent! ? Color(0xFFA5001F) : Color(0xFF7F8609),
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [BoxShadow(offset: Offset.zero, blurRadius: 20, color: Colors.black.withOpacity(0.5))]
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding: EdgeInsets.only(left: 20, top: 5, bottom: 5, right: 20),
+                    decoration: BoxDecoration(
+                      color: opponent! ? Color(0xFF620012) : Color(0xFF353807),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text('200', style: TextStyle(color: Colors.white))
+                  ),
+                  Text('linda0516', style: TextStyle(color: Colors.white))
+                ]
+              )
+            ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage('https://image.freepik.com/free-photo/close-up-shot-pretty-woman-with-perfect-teeth-dark-clean-skin-having-rest-indoors-smiling-happily-after-received-good-positive-news_273609-1248.jpg'),
+                  fit: BoxFit.cover
+                ),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [BoxShadow(offset: Offset.zero, blurRadius: 20, color: Colors.black.withOpacity(0.5))],
+                border: Border.all(width: 3, color: opponent! ? Color(0xFFEF1C44) : Color(0xFFB0B704))
+              )
+            )
+          )
         ]
       )
     );
   }
 }
 
-class DonutCard extends StatelessWidget {
 
-  DonutModel? donutInfo;
-  DonutCard({ this.donutInfo });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => DonutShopDetails(selectedDonut: donutInfo))
-        );
-      },
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Container(
-            width: 150,
-            padding: EdgeInsets.all(20),
-            alignment: Alignment.bottomLeft,
-            margin: EdgeInsets.only(left: 10, top: 60, right: 10, bottom: 20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: Offset(0.0, 4.0))]
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('${donutInfo!.name!}', style: TextStyle(color: Utils.mainDark, fontWeight: FontWeight.bold, fontSize: 15)),
-                SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Utils.mainColor,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
-                  child: Text('\$${donutInfo!.price!.toStringAsFixed(2)}', style: TextStyle(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold))
-                )
-              ],
-            ),
-          ),
-          Hero(
-            tag: donutInfo!.name!,
-            child: Align(
-            alignment: Alignment.topCenter,
-            child: Image.network(donutInfo!.imgUrl!, width: 150, height: 150, fit: BoxFit.contain),
-          ),
-          )
-        ],
-      ),
-    );
-  }
-}
-
-class DonutPager extends StatefulWidget {
+class DominoPiece extends StatelessWidget {
   
-  @override
-  State<DonutPager> createState() => _DonutPagerState();
-}
-
-class _DonutPagerState extends State<DonutPager> {
-  List<DonutPage> pages = [
-    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo1.png', label: 'Test label', logoImgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text_reversed.png'),
-    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo2.png', label: 'Test label', logoImgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text_reversed.png'),
-    DonutPage(imgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_promo3.png', label: 'Test label', logoImgUrl: 'https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text.png'),
-  ];
-  int currentPage = 0;
-  final PageController controller = PageController(initialPage: 0);
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    
-    return Column(
-      children: [
-
-        Expanded(
-          child: PageView(
-            scrollDirection: Axis.horizontal,
-            pageSnapping: true,
-            controller: controller,
-            onPageChanged: (int page) {
-              setState(() {
-                currentPage = page;
-              });
-            },
-            children: List.generate(3, (index) {
-              DonutPage currentPage = pages[index];
-              return Container(
-                alignment: Alignment.bottomLeft,
-                margin: EdgeInsets.all(20),
-                padding: EdgeInsets.all(30),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 10, offset: Offset(0.0, 5.0))],
-                  image: DecorationImage(
-                    image: NetworkImage(currentPage.imgUrl!),
-                    fit: BoxFit.cover
-                  )
-                ),
-                child: Image.network(currentPage.logoImgUrl!, width: 120) // Text('${currentPage.label!}', style: TextStyle(color: Colors.white))
-              );
-            })
+ int? topNumber;
+ int? bottomNumber;
+  
+  DominoPiece({ this.topNumber, this.bottomNumber });
+ 
+ @override
+ Widget build(BuildContext context) {
+  return 
+   Center(
+   child: Container(
+    margin: EdgeInsets.all(2),
+    child: Stack(
+     children: [
+      Container(
+       margin: EdgeInsets.only(top: 8),
+       width: 80,
+       height: 170,
+       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Color(0xFFEFD99F),
+        boxShadow: [
+         BoxShadow(
+          color: Colors.black.withOpacity(0.5),
+          blurRadius: 30,
+          offset: Offset.zero
+         )
+        ]
+       )
+      ),
+      Container(
+       width: 80,
+       height: 170,
+       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: Color(0xFFFFFCF4)
+       ),
+       child: Column(
+        children: [
+         Expanded(
+          child: Container(
+           padding: EdgeInsets.all(12),
+           alignment: Alignment.center,
+           width: 90,
+           height: 80,
+           child: DominoNumber(number: topNumber!)
           )
-        ),
-
-        // pageview indicators
-        PageViewerIndicator(
-          controller: controller, 
-          numberOfPages: pages.length,
-          currentPage: currentPage,
-        )
-      ]
-    );
-  }
+         ),
+         Stack(
+          children: [
+           Container(
+            height: 2,
+            color: Colors.grey,
+            margin: EdgeInsets.only(left: 10, right: 10, top: 3, bottom: 3),
+            alignment: Alignment.center,
+           ),
+           Center(
+            child: ClipOval(
+             child: Container(
+              color: Colors.grey,
+              width: 8,
+              height: 8
+             )
+            )
+           )
+          ]
+         ),
+         Expanded(
+          child: Container(
+           padding: EdgeInsets.all(12),
+           alignment: Alignment.center,
+           width: 90,
+           height: 80,
+           child: DominoNumber(number: bottomNumber!)
+          )
+         )
+        ]
+       )
+      )
+     ]
+    )
+   )
+  );
+ }
 }
 
-class PageViewerIndicator extends StatelessWidget {
-  PageController? controller;
-  int? numberOfPages;
-  int? currentPage;
+class DominoNumber extends StatelessWidget {
+  int? number;
+  DominoNumber({ this.number });
 
-  PageViewerIndicator({ this.controller, this.numberOfPages, this.currentPage });
+  Map<int, List<int>> numberMap = {
+    0: [],
+    1: [4],
+    2: [0,8],
+    3: [0,4,8],
+    4: [0,2,6,8],
+    5: [0,2,4,6,8],
+    6: [0,1,2,6,7,8]
+  };
 
-  @override
-  Widget build(BuildContext context) {
+  List<Widget> generateDominoDots() {
+    List<Column> columns = [];
 
-    
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: List.generate(numberOfPages!, (index) {
-          return GestureDetector(
-            onTap: () {
-              controller!.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
-              width: 15, height: 15,
-              margin: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: currentPage == index ? Utils.mainColor : Colors.grey.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10)
+    int dotCount = 0;
+    for(var i = 0; i < 3; i++) {
+      Column col = Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [],
+      );
+
+      for(var d = 0; d < 3; d++) {
+
+        var dotWidget = Visibility(
+          visible: numberMap[number]!.contains(dotCount),
+          child: ClipOval(
+            child: Container(
+              width: 15,
+              height: 15,
+              color: Color(0xFF4A1010)
               )
             ),
           );
-        })
-      );
+
+        col.children.add(dotWidget);
+        dotCount++;
+      }
+
+      columns.add(col);
+    }
+    return columns;
   }
-}
-      
-class DonutPage {
-  String? imgUrl;
-  String? label;
-  String? logoImgUrl;
   
-  DonutPage({ this.imgUrl, this.logoImgUrl, this.label });
-}
-
-class DonutShopDetails extends StatefulWidget {
-
-  DonutModel? selectedDonut;
-
-  DonutShopDetails({ this.selectedDonut });
-
-  @override
-  State<DonutShopDetails> createState() => _DonutShopDetailsState();
-}
-
-class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerProviderStateMixin {
-  AnimationController? controller;
-  Animation<double>? rotationAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    controller = AnimationController(duration: const Duration(seconds: 20), vsync: this)..repeat();
-    rotationAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(parent: controller!, curve: Curves.linear));
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: const IconThemeData(color: Utils.mainDark),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: SizedBox(
-          width: 120,
-          child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text.png')
-        )
-      ),
-      body: Column(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height / 2,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -40,
-                  right: -120,
-                  child: Hero(
-                      tag: widget.selectedDonut!.name!,
-                      child: RotationTransition(
-                        turns: rotationAnimation!,
-                        child: Container(
-                          width: 500,
-                          height: 500,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage(widget.selectedDonut!.imgUrl!),fit: BoxFit.contain
-                            )
-                          ),
-                        ),
-                      )
-                    )
-                )
-              ]
-            )
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Text('${widget.selectedDonut!.name!}',
-                                    style: TextStyle(color: Utils.mainDark, fontSize: 30, fontWeight: FontWeight.bold)    
-                                   )
-                      ),
-                      SizedBox(width: 50),
-                      IconButton(icon: Icon(Icons.favorite, color: Utils.mainDark), onPressed: () {})
-                    ]
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-                    child: Text('\$${widget.selectedDonut!.price!.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
-                    decoration: BoxDecoration(
-                      color: Utils.mainDark,
-                      borderRadius: BorderRadius.circular(20),
-                    )
-                  ),
-                  SizedBox(height: 20),
-                  Text('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce blandit, tellus condimentum cursus gravida, lorem augue venenatis elit, sit amet bibendum quam neque id sapien. '),
-                  Consumer<DonutCartService>(
-                    builder: (context, cartService, child) {
-
-                      if (!cartService.isDonutInCart(widget.selectedDonut!)) {
-                        return GestureDetector(
-                          onTap: () {
-                            cartService.addToCart(widget.selectedDonut!);
-                          },
-                          child: Container(
-                            margin: EdgeInsets.only(top: 20),
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
-                            decoration: BoxDecoration(
-                              color: Utils.mainDark.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(50)
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.shopping_cart, color: Utils.mainDark),
-                                SizedBox(width: 20),
-                                Text('Add To Cart', style: TextStyle(color: Utils.mainDark)),
-                              ],
-                            )
-                          ),
-                        );
-                      }
-
-                      return Padding(
-                        padding: EdgeInsets.only(top: 30, bottom: 30),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.check_rounded, color: Utils.mainDark),
-                            SizedBox(width: 20),
-                            Text('Added to Cart', style: TextStyle(fontWeight: FontWeight.bold, color: Utils.mainDark))
-                          ],
-                        ),
-                      );
-                    },
-                  )
-                ]
-              )
-            )
-          )
-        ]
-      )
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: generateDominoDots(),
     );
   }
 
-  @override
-  void dispose() {
-    controller!.dispose();
-    super.dispose();
-  }
 }
 
-class DonutModel {
+class DominoModel {
+  int? topNumber;
+  int? bottomNumber;
 
-  String? imgUrl;
-  String? name;
-  String? description;
-  double? price;
-  bool? isSelected;
-  String? type;
-
-  DonutModel({
-    this.imgUrl,
-    this.name,
-    this.description,
-    this.price,
-    this.isSelected,
-    this.type
-  });
+  DominoModel({ this.topNumber, this.bottomNumber });
 }
 
-class DonutService extends ChangeNotifier {
+class Utils {
 
-  List<DonutModel> filteredDonuts = [];
+  static List<DominoModel> allDominos() {
+    List<DominoModel> dominos = [];
 
-  DonutService() {
-    filteredDonutsByType('classic');
+    for(var i = 0; i < 7; i++) {
+      for(var j = 0; j < 7; j++) {
+        if (dominos.where((DominoModel element) => element.topNumber == i && element.bottomNumber == j).length == 0 &&
+        dominos.where((DominoModel element) => element.topNumber == j && element.bottomNumber == i).length == 0) {
+          dominos.add(DominoModel(topNumber: i, bottomNumber: j));
+        }
+      }
+    }
+
+    return dominos;
   }
 
-  void filteredDonutsByType(String type) {
-    filteredDonuts = Utils.donuts.where((d) => d.type == type).toList();
-    notifyListeners();
-  }
-}
+  static List<DominoModel> takeRandom7Dominos() {
+    var rand = Random();
+    var randomPieces = [];
+    
+    var index = rand.nextInt(28);
+    while(randomPieces.length < 7) {
+      if (!randomPieces.contains(index)) {
+        randomPieces.add(index);
+      }
 
-class DonutCartService extends ChangeNotifier {
+      index = rand.nextInt(28);
+    }
 
-  List<DonutModel> cartDonuts = [];
+    var allPieces = allDominos();
+    List<DominoModel> myPieces = [];
+    randomPieces.forEach((element) {
+      myPieces.add(allPieces[element]);
+    });
 
-  void addToCart(DonutModel donut) {
-    cartDonuts.add(donut);
-    notifyListeners();
-  }
-
-  void removeFromCart(DonutModel donut) {
-    cartDonuts.remove(donut);
-    notifyListeners();
-  }
-
-  bool isDonutInCart(DonutModel donut) {
-    return cartDonuts.any((d) => d.name == donut.name);
+    return myPieces;
   }
 }
