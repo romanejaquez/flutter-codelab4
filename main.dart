@@ -31,7 +31,17 @@ class MyWidget extends StatefulWidget {
 
 class _MyWidgetState extends State<MyWidget> {
   DominoModel? acceptedData;
-  List<DominoModel> dominos = Utils.takeRandom7Dominos();
+  List<DominoModel> addedDominos = [];
+
+  List<DominoPiece> renderDominoPieces() {
+    List<DominoPiece> pieces = [];
+
+    addedDominos.forEach((DominoModel p) {
+      pieces.add(DominoPiece(topNumber: p.topNumber, bottomNumber: p.bottomNumber));
+    });
+
+    return pieces;
+  }
 
  @override
  Widget build(BuildContext context) {
@@ -39,42 +49,36 @@ class _MyWidgetState extends State<MyWidget> {
   return Container(
    child: Stack(
       children: [
-        Transform.scale(
-          scale: 0.8,
-          child: Container(
-            margin: EdgeInsets.only(bottom: 40),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                DominoPiece(topNumber: 1, bottomNumber: 6),
-                DominoPiece(topNumber: 2, bottomNumber: 5),
-                DragTarget<DominoModel>(builder: (context, accepted, rejected) {
-                  if (acceptedData != null) {
-                    return DominoPiece(topNumber: acceptedData!.topNumber, bottomNumber: acceptedData!.bottomNumber);
-                  }
-                  return Image.asset('assets/imgs/dominoborder.png', width: 80, height: 170);
-                },
-                onAccept: (DominoModel model) {
-                  setState(() {
-                    acceptedData = model;
-                  });
-                },
-                )
-                // Draggable(
-                //   child: DominoPiece(topNumber: 3, bottomNumber: 4),
-                //   feedback: Transform.scale(
-                //     scale: 0.8,
-                //     child: Transform.translate(
-                //     offset: Offset(
-                //       (MediaQuery.of(context).size.width / 2 - 10), 0.0),
-                //     child: DominoPiece(topNumber: 3, bottomNumber: 4),
-                //   )
-                //   ),
-                // )
-              ]
-            ),
-          )
+        SingleChildScrollView(
+          child: Transform.scale(
+            scale: 0.8,
+            child: Container(
+              margin: const EdgeInsets.only(top: 200, bottom: 200),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    children: renderDominoPieces(),
+                  ),
+                  DragTarget<DominoModel>(builder: (context, accepted, rejected) {
+                      return Container(
+                        margin: const EdgeInsets.only(top: 5),
+                        child: Center(
+                          child: Image.asset('assets/imgs/dominoborder.png', width: 90, height: 180),
+                        )
+                      );
+                    },
+                    onAccept: (DominoModel model) {
+                      setState(() {
+                        addedDominos.add(model);
+                      });
+                    },
+                  )
+                ]
+              ),
+            )
+          ),
         ),
         Align(
           alignment: Alignment.topRight,
@@ -86,49 +90,7 @@ class _MyWidgetState extends State<MyWidget> {
         ),
         Positioned(
           bottom: 0, left: 0, right: 0,
-          child: Container(
-            height: 300,
-            child: Stack(
-              children: [
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Container(
-                    height: 160,
-                    margin: EdgeInsets.only(left: 20, bottom: 40),
-                    decoration: BoxDecoration(
-                      color: Color(0xFF0D8F9A),
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20))
-                    ),
-                  )
-                ),
-                ListView.builder(
-                  padding: EdgeInsets.only(left: 40),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: dominos.length,
-                  itemBuilder: (context, index) {
-                    var currentDomino = dominos[index];
-                    return Draggable(
-                      data: currentDomino,
-                      child: Container(
-                      margin: EdgeInsets.only(right: 10),
-                      child: DominoPiece(
-                        topNumber: currentDomino.topNumber, 
-                        bottomNumber: currentDomino.bottomNumber
-                      )
-                    ),
-                    feedback: Container(
-                      margin: EdgeInsets.only(right: 10),
-                      child: DominoPiece(
-                        topNumber: currentDomino.topNumber, 
-                        bottomNumber: currentDomino.bottomNumber
-                      )
-                    ),
-                    );
-                  },
-                )
-              ],
-            )
-          )
+          child: UserDominoPieces()
         )
       ] 
    ),
@@ -357,6 +319,64 @@ class DominoNumber extends StatelessWidget {
     );
   }
 
+}
+
+class UserDominoPieces extends StatefulWidget {
+  @override
+  State<UserDominoPieces> createState() => _UserDominoPiecesState();
+}
+
+class _UserDominoPiecesState extends State<UserDominoPieces> {
+  List<DominoModel> dominos = Utils.takeRandom7Dominos();
+  final GlobalKey<AnimatedListState> _key = GlobalKey();
+  List<DominoModel> insertedItems = [];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 300,
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Container(
+                height: 160,
+                margin: EdgeInsets.only(left: 20, bottom: 40),
+                decoration: BoxDecoration(
+                  color: Color(0xFF0D8F9A),
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20))
+                ),
+              )
+            ),
+            ListView.builder(
+              padding: EdgeInsets.only(left: 40),
+              scrollDirection: Axis.horizontal,
+              itemCount: dominos.length,
+              itemBuilder: (context, index) {
+                var currentDomino = dominos[index];
+                return Draggable(
+                  data: currentDomino,
+                  child: Container(
+                  margin: EdgeInsets.only(right: 10),
+                  child: DominoPiece(
+                    topNumber: currentDomino.topNumber, 
+                    bottomNumber: currentDomino.bottomNumber
+                  )
+                ),
+                feedback: Container(
+                  margin: EdgeInsets.only(right: 10),
+                  child: DominoPiece(
+                    topNumber: currentDomino.topNumber, 
+                    bottomNumber: currentDomino.bottomNumber
+                  )
+                ),
+                );
+              },
+            )
+          ],
+        )
+      );
+  }
 }
 
 class DominoModel {
