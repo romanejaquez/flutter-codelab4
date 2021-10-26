@@ -65,20 +65,35 @@ class MyWidget extends StatelessWidget {
           bottom: 0, left: 0, right: 0,
           child: Container(
             height: 300,
-            child: ListView.builder(
-              padding: EdgeInsets.only(left: 40),
-              scrollDirection: Axis.horizontal,
-              itemCount: dominos.length,
-              itemBuilder: (context, index) {
-                var currentDomino = dominos[index];
-                return Container(
-                  margin: EdgeInsets.only(right: 10),
-                  child: DominoPiece(
-                    topNumber: currentDomino.topNumber, 
-                    bottomNumber: currentDomino.bottomNumber
+            child: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    height: 160,
+                    margin: EdgeInsets.only(left: 20, bottom: 40),
+                    decoration: BoxDecoration(
+                      color: Color(0xFF0D8F9A),
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20))
+                    ),
                   )
-                );
-              },
+                ),
+                ListView.builder(
+                  padding: EdgeInsets.only(left: 40),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: dominos.length,
+                  itemBuilder: (context, index) {
+                    var currentDomino = dominos[index];
+                    return Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: DominoPiece(
+                        topNumber: currentDomino.topNumber, 
+                        bottomNumber: currentDomino.bottomNumber
+                      )
+                    );
+                  },
+                )
+              ],
             )
           )
         )
