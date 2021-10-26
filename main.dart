@@ -24,33 +24,56 @@ class MyApp extends StatelessWidget {
  }
 }
 
-class MyWidget extends StatelessWidget {
+class MyWidget extends StatefulWidget {
+  @override
+  State<MyWidget> createState() => _MyWidgetState();
+}
+
+class _MyWidgetState extends State<MyWidget> {
+  DominoModel? acceptedData;
+  List<DominoModel> dominos = Utils.takeRandom7Dominos();
+
  @override
  Widget build(BuildContext context) {
-  var dominos = Utils.takeRandom7Dominos();
+  
   return Container(
    child: Stack(
       children: [
         Transform.scale(
           scale: 0.8,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              DominoPiece(topNumber: 1, bottomNumber: 6),
-              DominoPiece(topNumber: 2, bottomNumber: 5),
-              Draggable(
-                child: DominoPiece(topNumber: 3, bottomNumber: 4),
-                feedback: Transform.scale(
-                  scale: 0.8,
-                  child: Transform.translate(
-                  offset: Offset(
-                    (MediaQuery.of(context).size.width / 2 - 10), 0.0),
-                  child: DominoPiece(topNumber: 3, bottomNumber: 4),
+          child: Container(
+            margin: EdgeInsets.only(bottom: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                DominoPiece(topNumber: 1, bottomNumber: 6),
+                DominoPiece(topNumber: 2, bottomNumber: 5),
+                DragTarget<DominoModel>(builder: (context, accepted, rejected) {
+                  if (acceptedData != null) {
+                    return DominoPiece(topNumber: acceptedData!.topNumber, bottomNumber: acceptedData!.bottomNumber);
+                  }
+                  return Image.asset('assets/imgs/dominoborder.png', width: 80, height: 170);
+                },
+                onAccept: (DominoModel model) {
+                  setState(() {
+                    acceptedData = model;
+                  });
+                },
                 )
-                ),
-              )
-            ]
+                // Draggable(
+                //   child: DominoPiece(topNumber: 3, bottomNumber: 4),
+                //   feedback: Transform.scale(
+                //     scale: 0.8,
+                //     child: Transform.translate(
+                //     offset: Offset(
+                //       (MediaQuery.of(context).size.width / 2 - 10), 0.0),
+                //     child: DominoPiece(topNumber: 3, bottomNumber: 4),
+                //   )
+                //   ),
+                // )
+              ]
+            ),
           )
         ),
         Align(
@@ -84,12 +107,22 @@ class MyWidget extends StatelessWidget {
                   itemCount: dominos.length,
                   itemBuilder: (context, index) {
                     var currentDomino = dominos[index];
-                    return Container(
+                    return Draggable(
+                      data: currentDomino,
+                      child: Container(
                       margin: EdgeInsets.only(right: 10),
                       child: DominoPiece(
                         topNumber: currentDomino.topNumber, 
                         bottomNumber: currentDomino.bottomNumber
                       )
+                    ),
+                    feedback: Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: DominoPiece(
+                        topNumber: currentDomino.topNumber, 
+                        bottomNumber: currentDomino.bottomNumber
+                      )
+                    ),
                     );
                   },
                 )
