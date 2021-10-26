@@ -1,10 +1,20 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 const Color darkBlue = Color.fromARGB(255, 18, 32, 47);
 
 void main() {
- runApp(MyApp());
+ runApp(
+   MultiProvider(
+    providers: [
+      ChangeNotifierProvider(
+        create: (_) => UserPiecesSelection()
+      )
+    ],
+    child: MyApp()
+   )
+ );
 }
 
 class MyApp extends StatelessWidget {
@@ -52,6 +62,7 @@ class _MyWidgetState extends State<MyWidget> {
         SingleChildScrollView(
           child: Transform.scale(
             scale: 0.8,
+            origin: Offset.zero,
             child: Container(
               margin: const EdgeInsets.only(top: 200, bottom: 200),
               child: Column(
@@ -82,15 +93,32 @@ class _MyWidgetState extends State<MyWidget> {
         ),
         Align(
           alignment: Alignment.topRight,
-          child: UserBadge(opponent: false)
+          child: UserBadge(
+            userName: 'roman_jaquez',
+            userAvatar: 'https://avatars.githubusercontent.com/u/5081804?v=4',
+            opponent: false)
         ),
         Align(
           alignment: Alignment.bottomLeft,
-          child: UserBadge(opponent: true)
+          child: UserBadge(
+            userName: 'linda0516',
+            userAvatar: 'https://image.freepik.com/free-photo/close-up-shot-pretty-woman-with-perfect-teeth-dark-clean-skin-having-rest-indoors-smiling-happily-after-received-good-positive-news_273609-1248.jpg',
+            opponent: true)
         ),
-        Positioned(
-          bottom: 0, left: 0, right: 0,
-          child: UserDominoPieces()
+        Consumer<UserPiecesSelection>(
+          builder: (context, piecesSelection, child) {
+            Widget innerWidget = Container();
+
+            if (piecesSelection.showUserPieces) {
+              innerWidget = UserDominoPieces();
+            }
+            return AnimatedPositioned(
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+              bottom: piecesSelection.showUserPieces ? 0 : -300, left: 0, right: 0,
+              child: innerWidget
+            );
+          },
         )
       ] 
    ),
@@ -106,8 +134,10 @@ class _MyWidgetState extends State<MyWidget> {
 class UserBadge extends StatelessWidget {
   
   bool? opponent;
+  String? userName;
+  String? userAvatar;
   
-  UserBadge({ this.opponent });
+  UserBadge({ this.opponent, this.userName, this.userAvatar });
   
   @override
   Widget build(BuildContext context) {
@@ -118,18 +148,18 @@ class UserBadge extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Container(
-              margin: EdgeInsets.only(top: 50),
-              padding: EdgeInsets.only(top: 30, left: 15, bottom: 12, right: 15),
-              decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: const Text('3 Pieces Remaining', style: TextStyle(color: Colors.white, fontSize: 10))
-            )
-          ),
+          // Align(
+          //   alignment: Alignment.centerLeft,
+          //   child: Container(
+          //     margin: EdgeInsets.only(top: 50),
+          //     padding: EdgeInsets.only(top: 30, left: 15, bottom: 12, right: 15),
+          //     decoration: BoxDecoration(
+          //       color: Colors.black.withOpacity(0.5),
+          //       borderRadius: BorderRadius.circular(15),
+          //     ),
+          //     child: const Text('3 Pieces Remaining', style: TextStyle(color: Colors.white, fontSize: 10))
+          //   )
+          // ),
           Align(
             alignment: Alignment.centerRight,
             child: Container(
@@ -150,25 +180,33 @@ class UserBadge extends StatelessWidget {
                     ),
                     child: const Text('200', style: TextStyle(color: Colors.white))
                   ),
-                  Text('linda0516', style: TextStyle(color: Colors.white))
+                  Text('$userName', style: TextStyle(color: Colors.white))
                 ]
               )
             ),
           ),
           Align(
             alignment: Alignment.centerRight,
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: NetworkImage('https://image.freepik.com/free-photo/close-up-shot-pretty-woman-with-perfect-teeth-dark-clean-skin-having-rest-indoors-smiling-happily-after-received-good-positive-news_273609-1248.jpg'),
-                  fit: BoxFit.cover
-                ),
-                borderRadius: BorderRadius.circular(25),
-                boxShadow: [BoxShadow(offset: Offset.zero, blurRadius: 20, color: Colors.black.withOpacity(0.5))],
-                border: Border.all(width: 3, color: opponent! ? Color(0xFFEF1C44) : Color(0xFFB0B704))
-              )
+            child: GestureDetector(
+              onTap: () {
+                if (!opponent!) {
+                  var piecesSelection = Provider.of<UserPiecesSelection>(context, listen: false);
+                  piecesSelection.toggleUserPieces();
+                }
+              },
+              child: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: NetworkImage('$userAvatar'),
+                    fit: BoxFit.cover
+                  ),
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [BoxShadow(offset: Offset.zero, blurRadius: 20, color: Colors.black.withOpacity(0.5))],
+                  border: Border.all(width: 3, color: opponent! ? Color(0xFFEF1C44) : Color(0xFFB0B704))
+                )
+              ),
             )
           )
         ]
@@ -332,6 +370,21 @@ class _UserDominoPiecesState extends State<UserDominoPieces> {
   List<DominoModel> insertedItems = [];
 
   @override
+  void initState() {
+    super.initState();
+
+    var future = Future(() {});
+    for (var i = 0; i < dominos.length; i++) {
+      future = future.then((_) {
+        return Future.delayed(const Duration(milliseconds: 125), () {
+          insertedItems.add(dominos[i]);
+          _key.currentState!.insertItem(i);
+        });
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
         height: 300,
@@ -348,30 +401,42 @@ class _UserDominoPiecesState extends State<UserDominoPieces> {
                 ),
               )
             ),
-            ListView.builder(
-              padding: EdgeInsets.only(left: 40),
+            AnimatedList(
+              padding: EdgeInsets.only(left: 50),
+              key: _key,
               scrollDirection: Axis.horizontal,
-              itemCount: dominos.length,
-              itemBuilder: (context, index) {
+              initialItemCount: insertedItems.length,
+              itemBuilder: (context, index, animation) {
                 var currentDomino = dominos[index];
-                return Draggable(
-                  data: currentDomino,
-                  child: Container(
-                  margin: EdgeInsets.only(right: 10),
-                  child: DominoPiece(
-                    topNumber: currentDomino.topNumber, 
-                    bottomNumber: currentDomino.bottomNumber
+                return ScaleTransition(
+                scale: Tween(begin: 0.6, end: 1.0)
+                  .animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeInOut
+                  )),
+                  child: FadeTransition(
+                    opacity: Tween(begin: 0.0, end: 1.0)
+                    .animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                    child: Draggable(
+                      data: currentDomino,
+                      child: Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: DominoPiece(
+                        topNumber: currentDomino.topNumber, 
+                        bottomNumber: currentDomino.bottomNumber
+                      )
+                    ),
+                    feedback: Container(
+                      margin: EdgeInsets.only(right: 10),
+                      child: DominoPiece(
+                        topNumber: currentDomino.topNumber, 
+                        bottomNumber: currentDomino.bottomNumber
+                      )
+                    ),
                   )
-                ),
-                feedback: Container(
-                  margin: EdgeInsets.only(right: 10),
-                  child: DominoPiece(
-                    topNumber: currentDomino.topNumber, 
-                    bottomNumber: currentDomino.bottomNumber
                   )
-                ),
                 );
-              },
+              }
             )
           ],
         )
@@ -423,5 +488,15 @@ class Utils {
     });
 
     return myPieces;
+  }
+}
+
+class UserPiecesSelection extends ChangeNotifier {
+
+  bool showUserPieces = false;
+
+  void toggleUserPieces() {
+    showUserPieces = !showUserPieces;
+    notifyListeners();
   }
 }
