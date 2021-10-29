@@ -830,3 +830,4 @@ class DonutFavoritesSerivce extends ChangeNotifier {
     return favoriteDonuts.any((d) => d.name == donut.name);
   }
 }
+  
