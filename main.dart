@@ -14,18 +14,27 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (_) => DonutCartService(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DonutFavoritesSerivce(),
         )
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: DonutShopMain()
+        initialRoute: '/main',
+        navigatorKey: Utils.mainAppNav,
+        routes: {
+          '/main': (context) => DonutShopMain(),
+          '/details': (context) => DonutShopDetails()
+        }
       )
     )
   );
 }
 
 class Utils {
-  
+  static GlobalKey<NavigatorState> mainListNav = GlobalKey();
+  static GlobalKey<NavigatorState> mainAppNav = GlobalKey();
   static const Color mainColor = Color(0xFFFF0F7E);
   static const Color mainDark = Color(0xFF980346);
 
@@ -194,7 +203,49 @@ class DonutShopMain extends StatelessWidget {
       ),
       body: Column(
         children: [
-          Container(
+          Expanded(
+            child: Navigator(
+              key: Utils.mainListNav,
+              initialRoute: '/',
+              onGenerateRoute: (RouteSettings settings) {
+
+                Widget page;
+
+                switch(settings.name) {
+                  case '/':
+                    page = DonutMainPage();
+                    break;
+                  case '/main/favorites':
+                    page = DonutFavoritesPage();
+                    break;
+                  case '/main/shoppinglist':
+                    page = DonutShoppingListPage();
+                    break;
+                  default:
+                    page = DonutMainPage();
+                    break;
+                }
+
+                return PageRouteBuilder(
+                  pageBuilder: (_, __, ___) => page,
+                  transitionDuration: const Duration(seconds: 0)
+                );
+              }
+            )
+          ),
+          DonutBottomBar()
+        ]
+      )
+    );
+  }
+}
+
+class DonutMainPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
             height: 350,
             child: DonutPager()
           ),
@@ -215,11 +266,23 @@ class DonutShopMain extends StatelessWidget {
                 },
               )
             ),
-          ),
-          DonutBottomBar()
-        ]
-      )
+          )
+      ],
     );
+  }
+}
+
+class DonutFavoritesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text('Favorites');
+  }
+}
+
+class DonutShoppingListPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Text('Shopping');
   }
 }
 
@@ -232,30 +295,40 @@ class DonutBottomBar extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.trip_origin, color: Utils.mainDark)) ,
-          IconButton(onPressed: () {}, icon: Icon(Icons.favorite, color: Utils.mainColor)) ,
-          Container(
-            constraints: BoxConstraints(minHeight: 70),
-            padding: EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Utils.mainColor,
-              borderRadius: BorderRadius.circular(50)
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Consumer<DonutCartService>(
-                  builder: (context, cartService, child) {
-                    if (cartService.cartDonuts.length > 0) {
-                      return Text('${cartService.cartDonuts.length}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14));
-                    }
-                    return SizedBox(height: 20);
-                  },
-                ),
-                SizedBox(height: 10),
-                Icon(Icons.shopping_cart, color: Colors.white) ,
-              ],
-            ),
+          IconButton(onPressed: () {
+            Utils.mainListNav.currentState!.pushReplacementNamed('/');
+          }, icon: Icon(Icons.trip_origin, color: Utils.mainDark)) ,
+          IconButton(onPressed: () {
+            Utils.mainListNav.currentState!.pushReplacementNamed('/main/favorites');
+          }, icon: Icon(Icons.favorite, color: Utils.mainColor)) ,
+          
+          Consumer<DonutCartService>(
+            builder: (context, cartService, child) {
+              int cartItems = cartService.cartDonuts.length;
+              return GestureDetector(
+                onTap: () {
+                  Utils.mainListNav.currentState!.pushReplacementNamed('/main/shoppinglist');
+                },
+                child: Container(
+                  constraints: BoxConstraints(minHeight: 70),
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: cartItems > 0 ? Utils.mainColor : Colors.transparent,
+                    borderRadius: BorderRadius.circular(50)
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      cartService.cartDonuts.length > 0 ? 
+                      Text('$cartItems', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))
+                          : SizedBox(height: 20),
+                      SizedBox(height: 10),
+                      Icon(Icons.shopping_cart, color: cartItems > 0 ? Colors.white : Utils.mainColor) ,
+                    ],
+                  ),
+                )
+              );
+            }
           )
         ],
       )
@@ -368,18 +441,17 @@ class DonutCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => DonutShopDetails(selectedDonut: donutInfo))
-        );
+        Provider.of<DonutService>(context, listen: false).selectedDonut = donutInfo!;
+        Utils.mainAppNav.currentState!.pushNamed('/details');
       },
       child: Stack(
         alignment: Alignment.center,
         children: [
           Container(
             width: 150,
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.all(15),
             alignment: Alignment.bottomLeft,
-            margin: EdgeInsets.only(left: 10, top: 60, right: 10, bottom: 20),
+            margin: EdgeInsets.only(left: 10, top: 80, right: 10, bottom: 20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
@@ -526,10 +598,6 @@ class DonutPage {
 
 class DonutShopDetails extends StatefulWidget {
 
-  DonutModel? selectedDonut;
-
-  DonutShopDetails({ this.selectedDonut });
-
   @override
   State<DonutShopDetails> createState() => _DonutShopDetailsState();
 }
@@ -537,6 +605,7 @@ class DonutShopDetails extends StatefulWidget {
 class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerProviderStateMixin {
   AnimationController? controller;
   Animation<double>? rotationAnimation;
+  DonutModel? selectedDonut;
 
   @override
   void initState() {
@@ -548,6 +617,9 @@ class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerPr
 
   @override
   Widget build(BuildContext context) {
+    DonutService donutService = Provider.of<DonutService>(context, listen: false);
+    selectedDonut = donutService.selectedDonut;
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Utils.mainDark),
@@ -568,7 +640,7 @@ class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerPr
                   top: -40,
                   right: -120,
                   child: Hero(
-                      tag: widget.selectedDonut!.name!,
+                      tag: selectedDonut!.name!,
                       child: RotationTransition(
                         turns: rotationAnimation!,
                         child: Container(
@@ -576,7 +648,7 @@ class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerPr
                           height: 500,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: NetworkImage(widget.selectedDonut!.imgUrl!),fit: BoxFit.contain
+                              image: NetworkImage(selectedDonut!.imgUrl!),fit: BoxFit.contain
                             )
                           ),
                         ),
@@ -596,18 +668,33 @@ class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerPr
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text('${widget.selectedDonut!.name!}',
+                        child: Text('${selectedDonut!.name!}',
                                     style: TextStyle(color: Utils.mainDark, fontSize: 30, fontWeight: FontWeight.bold)    
                                    )
                       ),
                       SizedBox(width: 50),
-                      IconButton(icon: Icon(Icons.favorite, color: Utils.mainDark), onPressed: () {})
+                      Consumer<DonutFavoritesSerivce>(
+                        builder: (context, favoritesService, child) {
+                          return IconButton(
+                            icon: Icon(favoritesService.isDonutFavorite(selectedDonut!) ? Icons.favorite : Icons.favorite_outline,
+                            color: Utils.mainDark),
+                            onPressed: () {
+                              if (favoritesService.isDonutFavorite(selectedDonut!)) {
+                                favoritesService.removeFavorite(selectedDonut!);
+                              }
+                              else {
+                                favoritesService.addFavorite(selectedDonut!);
+                              }
+                            }
+                          );
+                        }
+                      )
                     ]
                   ),
                   SizedBox(height: 10),
                   Container(
                     padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
-                    child: Text('\$${widget.selectedDonut!.price!.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
+                    child: Text('\$${selectedDonut!.price!.toStringAsFixed(2)}', style: TextStyle(color: Colors.white)),
                     decoration: BoxDecoration(
                       color: Utils.mainDark,
                       borderRadius: BorderRadius.circular(20),
@@ -618,10 +705,10 @@ class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerPr
                   Consumer<DonutCartService>(
                     builder: (context, cartService, child) {
 
-                      if (!cartService.isDonutInCart(widget.selectedDonut!)) {
+                      if (!cartService.isDonutInCart(selectedDonut!)) {
                         return GestureDetector(
                           onTap: () {
-                            cartService.addToCart(widget.selectedDonut!);
+                            cartService.addToCart(selectedDonut!);
                           },
                           child: Container(
                             margin: EdgeInsets.only(top: 20),
@@ -694,6 +781,7 @@ class DonutModel {
 class DonutService extends ChangeNotifier {
 
   List<DonutModel> filteredDonuts = [];
+  late DonutModel selectedDonut;
 
   DonutService() {
     filteredDonutsByType('classic');
@@ -721,5 +809,24 @@ class DonutCartService extends ChangeNotifier {
 
   bool isDonutInCart(DonutModel donut) {
     return cartDonuts.any((d) => d.name == donut.name);
+  }
+}
+
+class DonutFavoritesSerivce extends ChangeNotifier {
+
+  List<DonutModel> favoriteDonuts = [];
+
+  void addFavorite(DonutModel donut) {
+    favoriteDonuts.add(donut);
+    notifyListeners();
+  }
+
+  void removeFavorite(DonutModel donut) {
+    favoriteDonuts.remove(donut);
+    notifyListeners();
+  }
+
+  bool isDonutFavorite(DonutModel donut) {
+    return favoriteDonuts.any((d) => d.name == donut.name);
   }
 }
