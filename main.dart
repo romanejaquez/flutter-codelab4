@@ -16,7 +16,7 @@ void main() {
           create: (_) => DonutCartService(),
         ),
         ChangeNotifierProvider(
-          create: (_) => DonutFavoritesSerivce(),
+          create: (_) => DonutFavoritesService(),
         )
       ],
       child: MaterialApp(
@@ -282,9 +282,6 @@ class _DonutListState extends State<DonutList> with TickerProviderStateMixin {
 
     var future = Future(() {});
     for (var i = 0; i < widget.donuts!.length; i++) {
-      // controllers!.add(AnimationController(
-      // duration: const Duration(milliseconds: 3000), vsync: this)
-      // ..forward());
       future = future.then((_) {
         return Future.delayed(const Duration(milliseconds: 125), () {
           insertedItems.add(widget.donuts![i]);
@@ -328,17 +325,178 @@ class _DonutListState extends State<DonutList> with TickerProviderStateMixin {
   }
 }
 
-class DonutFavoritesPage extends StatelessWidget {
+class DonutFavoritesPage extends StatefulWidget {
+  @override
+  State<DonutFavoritesPage> createState() => _DonutFavoritesPageState();
+}
+
+class _DonutFavoritesPageState extends State<DonutFavoritesPage> with SingleTickerProviderStateMixin {
+  AnimationController? titleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    titleAnimation = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this)..forward();
+  }
   @override
   Widget build(BuildContext context) {
-    return Text('Favorites');
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FadeTransition(
+              opacity: Tween(begin: 0.0, end: 1.0)
+                .animate(CurvedAnimation(parent: titleAnimation!, curve: Curves.easeInOut)),
+                child: SizedBox(
+                width: 200,
+                child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_favorites_title.png'),
+              )
+            ),
+            Expanded(
+              child: Consumer<DonutFavoritesService>(
+                builder: (context, favoritesService, child) {
+
+                  if (favoritesService.favoriteDonuts.isEmpty) {
+                    return Center(
+                      child: SizedBox(
+                        width: 200,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.favorite, color: Colors.grey),
+                            SizedBox(height: 20),
+                            Text('You don\'t have any favorites yet - Add a few!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(color: Colors.grey))
+                          ],
+                        ) 
+                        )
+                      );
+                  }
+
+                  return DonutsFavoritesList(favoriteDonuts: favoritesService.favoriteDonuts);
+                },
+              ),
+            )
+          ],
+        ),
+      )
+    );
   }
 }
 
-class DonutShoppingListPage extends StatelessWidget {
+class DonutsFavoritesList extends StatefulWidget {
+  List<DonutModel>? favoriteDonuts;
+
+  DonutsFavoritesList({ this.favoriteDonuts });
+
+  @override
+  State<DonutsFavoritesList> createState() => _DonutsFavoritesListState();
+}
+
+class _DonutsFavoritesListState extends State<DonutsFavoritesList> {
+  final GlobalKey<AnimatedListState> _key = GlobalKey();
+  List<DonutModel> insertedItems = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    var future = Future(() {});
+    for (var i = 0; i < widget.favoriteDonuts!.length; i++) {
+      future = future.then((_) {
+        return Future.delayed(const Duration(milliseconds: 125), () {
+          insertedItems.add(widget.favoriteDonuts![i]);
+          _key.currentState!.insertItem(i);
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Text('Shopping');
+    return AnimatedList(
+      key: _key,
+      initialItemCount: insertedItems.length,
+      itemBuilder: (context, index, animation) {
+        var favDonut = widget.favoriteDonuts![index];
+        return SlideTransition(
+              position: Tween(
+                begin: const Offset(0.0, 0.2),
+                end: const Offset(0.0, 0.0),
+              )
+              .animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeInOut
+              )),
+              child: FadeTransition(
+                opacity: Tween(begin: 0.0, end: 1.0)
+                .animate(CurvedAnimation(parent: animation, curve: Curves.easeInOut)),
+                child: Container(
+                  padding: const EdgeInsets.only(top: 10, bottom: 10, right: 20),
+                  child: Row(
+                    children: [
+                      Image.network('${favDonut.imgUrl}', width: 100, height: 100),
+                      Expanded(
+                        child: Text('${favDonut.name}', style: TextStyle(color: Utils.mainDark, fontSize: 15, fontWeight: FontWeight.bold)),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(Icons.favorite, color: Utils.mainDark)
+                    ],
+                  )
+            )
+          )
+        );
+      });
+  }
+}
+
+class DonutShoppingListPage extends StatefulWidget {
+  @override
+  State<DonutShoppingListPage> createState() => _DonutShoppingListPageState();
+}
+
+class _DonutShoppingListPageState extends State<DonutShoppingListPage> with SingleTickerProviderStateMixin {
+  AnimationController? titleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    titleAnimation = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this
+    )..forward();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FadeTransition(
+              opacity: Tween(begin: 0.0, end: 1.0)
+                .animate(CurvedAnimation(parent: titleAnimation!, curve: Curves.easeInOut)),
+                child: SizedBox(
+                  width: 170,
+                  child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_mydonuts_title.png'),
+                ),
+            ),
+            Expanded(
+              child: Container()
+            )
+          ],
+        ),
+      )
+    );
   }
 }
 
@@ -729,7 +887,7 @@ class _DonutShopDetailsState extends State<DonutShopDetails> with SingleTickerPr
                                    )
                       ),
                       SizedBox(width: 50),
-                      Consumer<DonutFavoritesSerivce>(
+                      Consumer<DonutFavoritesService>(
                         builder: (context, favoritesService, child) {
                           return IconButton(
                             icon: Icon(favoritesService.isDonutFavorite(selectedDonut!) ? Icons.favorite : Icons.favorite_outline,
@@ -868,7 +1026,7 @@ class DonutCartService extends ChangeNotifier {
   }
 }
 
-class DonutFavoritesSerivce extends ChangeNotifier {
+class DonutFavoritesService extends ChangeNotifier {
 
   List<DonutModel> favoriteDonuts = [];
 
