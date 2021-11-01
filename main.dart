@@ -168,11 +168,19 @@ class DonutShopApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Utils.mainColor,
-      body: Center(
-        child: SizedBox(
-          width: 140,
-          child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_logowhite.png')
-        )
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            width: 100,
+            child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_logowhite_notext.png', width: 100, height: 100)
+          ),
+          SizedBox(
+            width: 100,
+            child: Image.network('https://romanejaquez.github.io/flutter-codelab4/assets/donut_shop_text_reversed.png', width: 80, height: 80)
+          )
+        ],
       )
     );
   }
